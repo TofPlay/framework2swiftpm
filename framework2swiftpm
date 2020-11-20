@@ -1,0 +1,248 @@
+#!/bin/bash
+function usage() {
+ cat << EOF
+
+This script is used to generate an XCFramework from a framework. 
+It can also generate the binary package for SwiftPM.
+
+Syntax:
+    ./framework2swiftpm --framework=<framework path>,i386,x86_64 \\
+                        --framework=<framework path>,armv7,arm64 \\
+                        --name=<XCFramework name> \\
+                        --swiftpm \\
+                        --version=<version> \\
+                        --cdn=<url> \\
+                        --macOS=<macOS version> \\
+                        --iOS=<iOS version> \\
+                        --git
+
+    Required:
+        --framework: Framework path followed by the list of architectures to extract
+        --name: XCFramework name without extension "xcframework"
+
+    Optionals:
+        --swiftpm: Will generate the Package.swift file for SwiftPM by default "false"
+        --version: Version of the XCFramework by default empty
+        --cdn: Url of the CDN where the XCFramework will be stored by default empty
+        --macOS: macOS version for the Package.swift by default ".v10_14"
+        --iOS: iOS version for the Package.swift by default ".v12"
+        --git: Will prepare a git repo for SwiftPM by default "false"
+
+EOF
+  exit 255
+}
+
+# $1 : Framework path
+# $2 : Achitectures
+function frameworkForArch() {
+    if [ -d "$1" ]
+    then 
+        FULLPATH=$1
+        FILENAME="${FULLPATH##*/}"
+        DIR="${FULLPATH:0:${#FULLPATH} - ${#FILENAME}}"
+        FILENAME="${FILENAME%.[^.]*}"
+        ARCHS=""
+        for ARCH in "${@: 2}"
+        do
+            ARCHS="$ARCHS $ARCH"
+        done
+
+        FOLDER=$(echo $ARCHS|tr ' ' '+')
+        FRAMEWORK_ARCH="$FOLDER/${FILENAME}.framework"
+
+        if [ -d "$FOLDER" ]
+        then 
+            rm -rf "$FOLDER"
+        fi
+
+        mkdir "$FOLDER"
+
+        EXTRACT=""
+        for ARCH in "${@: 2}"
+        do
+            EXTRACT="$EXTRACT -extract $ARCH"
+        done
+
+        cp -avR "$FULLPATH" "$FOLDER/${FILENAME}.framework" &> /dev/null
+        lipo "${FRAMEWORK_ARCH}/${FILENAME}" $EXTRACT -o "${FRAMEWORK_ARCH}/${FILENAME}"
+        lipo "${FRAMEWORK_ARCH}/${FILENAME}" -info
+    else 
+        echo "Framework not found: $1"
+    fi
+}
+
+# $1 : Framework path 
+# $2 : Architectures
+function buildXCFramework() {
+    if [ -d "$1.xcframework" ]
+    then
+        rm -rf "$1.xcframework"
+    fi
+
+    LIST_OF_FRAMEWORKS=""
+
+    for ARCH in "${@: 2}"
+    do
+        LIST_OF_FRAMEWORKS="${LIST_OF_FRAMEWORKS} -framework ${ARCH}/$1.framework"
+    done
+    
+    xcodebuild -create-xcframework ${LIST_OF_FRAMEWORKS} -output $1.xcframework
+
+    for ARCH in "${@: 2}"
+    do
+        rm -rf "${ARCH}"
+    done
+}
+
+# $1 : Version
+# $2 : XCFramework name 
+function filePackageSwift() {
+ cat << EOF > "$2/Package.swift"
+// swift-tools-version:5.3
+import PackageDescription
+
+let package = Package(
+    name: "$2",
+    platforms: [
+        .macOS(${MACOS}), .iOS(${IOS})
+    ],
+    products: [
+        // Products define the executables and libraries a package produces, and make them visible to other packages.
+        .library(
+            name: "$2",
+            targets: ["$2"])
+    ],
+    dependencies: [
+        // Dependencies declare other packages that this package depends on.
+    ],
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        .binaryTarget(
+            name: "$2",
+            url: "${CDN}/$2/$1/$2.xcframework.zip",
+            checksum: "${CHECKSUM}"
+        )
+    ]
+)
+EOF
+}
+
+# $1 : Version
+# $2 : XCFramework name 
+function genPackageSwift() {
+    if [ -d "$2.xcframework" ]
+    then
+        if [ -d "$2/$1" ]
+        then
+            rm -rf "$2/$1"
+            rm -rf "$2/.git"
+            rm -rf "$2/.gitignore"
+            rm -rf "$2/Package.swift"
+        fi
+        
+        mkdir -p $2/$1
+
+        pushd "$2"
+            echo "*.zip" > .gitignore
+            echo ".DS_Store" >> .gitignore
+            echo ".swiftpm/" >> .gitignore
+            git init
+            git add *
+            git add .gitignore
+            git commit -m "First commit"
+            git branch develop
+            git checkout develop
+        popd
+
+        ditto -c -k --keepParent "$2.xcframework" "$2/$1/$2.xcframework.zip"
+        filePackageSwift $1 $2
+
+        pushd "$2/$1"
+            mv ../Package.swift .
+            CHECKSUM=$(swift package compute-checksum "$2.xcframework.zip")
+            rm -rf .build
+            rm Package.swift
+        popd
+
+        filePackageSwift $1 $2
+
+        pushd "$2"
+            git add Package.swift
+            git commit -m "Compute checksum of $2.xcframework.zip"
+        popd
+
+        rm -rf "$2.xcframework"
+        rm -rf "$2/.build"
+    else 
+        echo "Missing XCFramework: $2.xcframework"
+    fi
+}
+
+if [ "$#" -eq 0 ] 
+then
+  usage
+else 
+  FRAMEWORKS=()
+  NAME=""
+  SWIFTPM="false"
+  VERSION=""
+  CDN=""
+  MACOS=".v10_14"
+  IOS=".v12"
+  GIT="false"
+
+  for PARAM in "$@"
+  do
+    case $PARAM in
+        --framework=*)
+          FRAMEWORKS+=( "${PARAM#*=}" )
+          shift
+          ;;
+        --name=*)
+          NAME="${PARAM#*=}"
+          shift
+          ;;
+        --swiftpm)
+          SWIFTPM="true"
+          shift
+          ;;
+        --version=*)
+          VERSION="${PARAM#*=}"
+          shift
+          ;;
+        --cdn=*)
+          CDN="${PARAM#*=}"
+          shift
+          ;;
+        --git)
+          GIT="true"
+          shift
+          ;;
+    esac
+  done
+
+  if [[ "$SWIFTPM" == "true" && "$CDN" == "" ]] || [[ "$SWIFTPM" == "true" && "$VERSION" == "" ]]
+  then 
+    echo "If you select SwiftPM you must also provide a url for the CDN and the version"
+  else 
+    ARCHS=""
+    BUILD_ARCHS=""
+    for FRAMEWORK in ${FRAMEWORKS[@]}
+    do 
+      IFS="," read -r -a VAL <<< "$FRAMEWORK"
+      ARCHS="${VAL[1]} ${VAL[2]} ${VAL[3]} ${VAL[4]}"
+      frameworkForArch "${VAL[0]}" $ARCHS
+      BUILD_ARCH=$(echo ${VAL[1]} ${VAL[2]} ${VAL[3]} ${VAL[4]}|tr ' ' '+')
+      BUILD_ARCHS="$BUILD_ARCHS $BUILD_ARCH"
+    done
+
+    buildXCFramework "$NAME" $BUILD_ARCHS
+
+    if [ "$SWIFTPM" == "true" ]
+    then
+      genPackageSwift "$VERSION" "$NAME"
+    fi
+  fi
+
+fi 
