@@ -51,7 +51,7 @@ framework2swiftpm --framework=vogolib_iOS_r5.0.7/5.0.7/devices/VOGOPlayerUI.fram
                   --cdn=https://cdn.company.com \
                   --git
 ```
-SwiftPM package for version 5.0.7:
+SwiftPM package for VOGOPlayerCore version 5.0.7:
 ```swift
 // swift-tools-version:5.3
 import PackageDescription
