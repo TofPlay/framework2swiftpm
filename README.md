@@ -32,7 +32,7 @@ Syntax:
 
 ```
 
-Example with the VOGO Frameworks:
+Example with the VOGO Frameworks 5.0.6:
 ```
 #!/bin/bash
 framework2swiftpm --framework=vogolib_iOS_r5.0.6/5.0.6/devices/VOGOPlayerCore.framework,armv7,arm64 \
