@@ -31,7 +31,7 @@ Syntax:
         --git: Will prepare a git repo for SwiftPM by default "false"
 
 ```
-
+## Example with VOGO Framework
 First version with the VOGO Frameworks 5.0.6:
 ```bash
 #!/bin/bash
