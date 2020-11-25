@@ -51,3 +51,16 @@ framework2swiftpm --framework=vogolib_iOS_r5.0.6/5.0.6/devices/VOGOPlayerUI.fram
                   --cdn=https://cdn.company.fr \
                   --git
 ```
+XCFrameworks on the CDN:
+```
+├── VOGOPlayerCore
+│   ├── 5.0.6
+│   │   └── VOGOPlayerCore.xcframework.zip
+│   └── 5.0.7
+│       └── VOGOPlayerCore.xcframework.zip
+└── VOGOPlayerUI
+    ├── 5.0.6
+    │   └── VOGOPlayerUI.xcframework.zip
+    └── 5.0.7
+        └── VOGOPlayerUI.xcframework.zip
+```
