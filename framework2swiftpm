@@ -136,24 +136,27 @@ function genPackageSwift() {
         if [ -d "$2/$1" ]
         then
             rm -rf "$2/$1"
-            rm -rf "$2/.git"
-            rm -rf "$2/.gitignore"
-            rm -rf "$2/Package.swift"
         fi
         
         mkdir -p $2/$1
 
-        pushd "$2"
-            echo "*.zip" > .gitignore
-            echo ".DS_Store" >> .gitignore
-            echo ".swiftpm/" >> .gitignore
-            git init
-            git add *
-            git add .gitignore
-            git commit -m "First commit"
-            git branch develop
-            git checkout develop
-        popd
+        if [ "$GIT" == "true" ]
+        then
+          pushd "$2"
+              rm ".git" &> /dev/null
+              rm ".gitignore" &> /dev/null
+              rm "Package.swift" &> /dev/null
+              echo "*.zip" > .gitignore
+              echo ".DS_Store" >> .gitignore
+              echo ".swiftpm/" >> .gitignore
+              git init
+              git add *
+              git add .gitignore
+              git commit -m "First commit"
+              git branch develop
+              git checkout develop
+          popd
+        fi
 
         ditto -c -k --keepParent "$2.xcframework" "$2/$1/$2.xcframework.zip"
         filePackageSwift $1 $2
@@ -167,10 +170,13 @@ function genPackageSwift() {
 
         filePackageSwift $1 $2
 
-        pushd "$2"
-            git add Package.swift
-            git commit -m "Compute checksum of $2.xcframework.zip"
-        popd
+        if [ "$GIT" == "true" ]
+        then
+          pushd "$2"
+              git add Package.swift
+              git commit -m "Compute checksum of $2.xcframework.zip"
+          popd
+        fi
 
         rm -rf "$2.xcframework"
         rm -rf "$2/.build"
