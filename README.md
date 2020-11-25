@@ -32,7 +32,26 @@ Syntax:
 
 ```
 
-Example with the VOGO Frameworks 5.0.7:
+First version with the VOGO Frameworks 5.0.6:
+```bash
+#!/bin/bash
+framework2swiftpm --framework=vogolib_iOS_r5.0.6/5.0.6/devices/VOGOPlayerCore.framework,armv7,arm64 \
+                  --framework=vogolib_iOS_r5.0.6/5.0.6/devicesAndSimulator/VOGOPlayerCore.framework,i386,x86_64 \
+                  --name=VOGOPlayerCore \
+                  --swiftpm \
+                  --version=5.0.6 \
+                  --cdn=https://cdn.company.com \
+                  --git
+
+framework2swiftpm --framework=vogolib_iOS_r5.0.6/5.0.6/devices/VOGOPlayerUI.framework,armv7,arm64 \
+                  --framework=vogolib_iOS_r5.0.6/5.0.6/devicesAndSimulator/VOGOPlayerUI.framework,i386,x86_64 \
+                  --name=VOGOPlayerUI \
+                  --swiftpm \
+                  --version=5.0.6 \
+                  --cdn=https://cdn.company.com \
+                  --git
+```
+Second version with the VOGO Frameworks 5.0.7:
 ```bash
 #!/bin/bash
 framework2swiftpm --framework=vogolib_iOS_r5.0.7/5.0.7/devices/VOGOPlayerCore.framework,armv7,arm64 \
@@ -40,18 +59,16 @@ framework2swiftpm --framework=vogolib_iOS_r5.0.7/5.0.7/devices/VOGOPlayerCore.fr
                   --name=VOGOPlayerCore \
                   --swiftpm \
                   --version=5.0.7 \
-                  --cdn=https://cdn.company.com \
-                  --git
+                  --cdn=https://cdn.company.com 
 
 framework2swiftpm --framework=vogolib_iOS_r5.0.7/5.0.7/devices/VOGOPlayerUI.framework,armv7,arm64 \
                   --framework=vogolib_iOS_r5.0.7/5.0.7/devicesAndSimulator/VOGOPlayerUI.framework,i386,x86_64 \
                   --name=VOGOPlayerUI \
                   --swiftpm \
                   --version=5.0.7 \
-                  --cdn=https://cdn.company.com \
-                  --git
+                  --cdn=https://cdn.company.com 
 ```
-SwiftPM package for VOGOPlayerCore version 5.0.7:
+Latest version of SwiftPM package for VOGOPlayerCore version 5.0.7:
 ```swift
 // swift-tools-version:5.3
 import PackageDescription
@@ -82,7 +99,7 @@ let package = Package(
 )
 ```
 
-XCFrameworks on the CDN:
+XCFrameworks on the CDN (root: https://cdn.company.com):
 ```
 ├── VOGOPlayerCore
 │   ├── 5.0.6
