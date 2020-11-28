@@ -32,6 +32,8 @@ Syntax:
 
 ```
 ## Example with VOGO Framework
+
+### Run framework2swiftpm for version 5.0.6
 First version with the VOGO Frameworks 5.0.6:
 ```bash
 #!/bin/bash
@@ -51,6 +53,7 @@ framework2swiftpm --framework=vogolib_iOS_r5.0.6/5.0.6/devices/VOGOPlayerUI.fram
                   --cdn=https://cdn.company.com \
                   --git
 ```
+### Run framework2swiftpm for version 5.0.7
 Second version with the VOGO Frameworks 5.0.7:
 ```bash
 #!/bin/bash
@@ -68,6 +71,7 @@ framework2swiftpm --framework=vogolib_iOS_r5.0.7/5.0.7/devices/VOGOPlayerUI.fram
                   --version=5.0.7 \
                   --cdn=https://cdn.company.com 
 ```
+### Package.swift
 Latest version of SwiftPM package for VOGOPlayerCore version 5.0.7:
 ```swift
 // swift-tools-version:5.3
