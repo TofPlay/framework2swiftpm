@@ -98,6 +98,7 @@ let package = Package(
     ]
 )
 ```
+### On the CDN
 XCFrameworks on the CDN (root: https://cdn.company.com):
 ```
 ├── VOGOPlayerCore
@@ -112,7 +113,7 @@ XCFrameworks on the CDN (root: https://cdn.company.com):
         └── VOGOPlayerUI.xcframework.zip
 ```
 
-### Repo Git
+### On the repo Git
 ![PastedGraphic-0](https://user-images.githubusercontent.com/1082222/100499199-e0edb780-3167-11eb-996f-7d2c0715303c.png)
 
 ### Use with Xcode
