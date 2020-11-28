@@ -119,4 +119,4 @@ XCFrameworks on the CDN (root: https://cdn.company.com):
 ![PastedGraphic-1](https://user-images.githubusercontent.com/1082222/100499252-4346b800-3168-11eb-84f3-c62081497267.png)
 ![PastedGraphic-2](https://user-images.githubusercontent.com/1082222/100499255-522d6a80-3168-11eb-88fa-7a4aecd7a2b3.png)
 ![PastedGraphic-3](https://user-images.githubusercontent.com/1082222/100499302-b6e8c500-3168-11eb-9c58-b22cee67475e.png)
-![PastedGraphic-4](https://user-images.githubusercontent.com/1082222/100499271-77ba7400-3168-11eb-8a37-a0a05fb2849d.png)
+![PastedGraphic-4](https://user-images.githubusercontent.com/1082222/100499340-0e873080-3169-11eb-86d6-6477220c6d57.png)
